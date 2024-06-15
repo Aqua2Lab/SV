@@ -1,57 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Secure Meters Bill Generator</title>
-    <script>
-        function calculateBill() {
-            // Get input values
-            var flatType = document.getElementById("flatType").value;
-            var flatArea = parseFloat(document.getElementById("flatArea").value);
-            var mainLoad = parseFloat(document.getElementById("mainLoad").value);
-            var pbLoad = parseFloat(document.getElementById("pbLoad").value);
-            var vendingCharges = parseFloat(document.getElementById("vendingCharges").value);
-            var societyChargesPerSqFt = parseFloat(document.getElementById("societyChargesPerSqFt").value);
-
-            // Fixed charges calculation
-            var mainFixedChargeRate = 6.2; // Rs per KW
-            var pbFixedChargeRate = 50; // Rs per KW
-            var totalMainFixedCharge = mainLoad * mainFixedChargeRate;
-            var totalPbFixedCharge = pbLoad * pbFixedChargeRate;
-            var totalFixedCharges = totalMainFixedCharge + totalPbFixedCharge;
-
-            // Society charges calculation
-            var totalSocietyCharges = flatArea * societyChargesPerSqFt;
-
-            // Total fixed charges including vending
-            var totalFixedChargesIncludingVending = totalFixedCharges + vendingCharges;
-
-            // Output the results
-            document.getElementById("output").innerHTML =
-                "Total Fixed Charges: Rs. " + totalFixedCharges.toFixed(2) + "<br>" +
-                "Total Society Charges: Rs. " + totalSocietyCharges.toFixed(2) + "<br>" +
-                "Total Fixed Charges Including Vending: Rs. " + totalFixedChargesIncludingVending.toFixed(2) + "<br>" +
-                "Total Monthly Bill: Rs. " + (totalFixedChargesIncludingVending + totalSocietyCharges).toFixed(2);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charges Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 20px;
         }
-    </script>
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3, h4 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        select, input[type="date"], input[type="number"], button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e7f3fe;
+            border: 1px solid #b3d4fc;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Secure Meters Bill Generator</h1>
-    <form>
-        <label for="flatType">Flat Type:</label>
-        <input type="text" id="flatType" name="flatType"><br><br>
-        <label for="flatArea">Flat Area (sq ft):</label>
-        <input type="number" id="flatArea" name="flatArea"><br><br>
-        <label for="mainLoad">Main Load (KW):</label>
-        <input type="number" id="mainLoad" name="mainLoad"><br><br>
-        <label for="pbLoad">Power Backup Load (KW):</label>
-        <input type="number" id="pbLoad" name="pbLoad"><br><br>
-        <label for="vendingCharges">Vending Charges (Rs):</label>
-        <input type="number" id="vendingCharges" name="vendingCharges"><br><br>
-        <label for="societyChargesPerSqFt">Society Charges per Sq Ft (Rs):</label>
-        <input type="number" id="societyChargesPerSqFt" name="societyChargesPerSqFt"><br><br>
-        <input type="button" value="Calculate Bill" onclick="calculateBill()">
-    </form>
-    <h2>Output</h2>
-    <div id="output"></div>
+    <div class="container">
+        <h1>Charges Calculator</h1>
+        <label for="flatType">Type of Flat:</label>
+        <select id="flatType">
+            <option value="LUX">LUX</option>
+            <option value="SDA">SDA</option>
+            <option value="DLX">DLX</option>
+            <option value="SFA">SFA</option>
+        </select>
+
+        <label for="startDate">Meter Reading Start Date:</label>
+        <input type="date" id="startDate">
+
+        <label for="endDate">Meter Reading End Date:</label>
+        <input type="date" id="endDate">
+
+        <label for="mainStart">Main Meter Start Reading:</label>
+        <input type="number" id="mainStart">
+
+        <label for="mainEnd">Main Meter End Reading:</label>
+        <input type="number" id="mainEnd">
+
+        <label for="pbStart">Power Backup Start Reading:</label>
+        <input type="number" id="pbStart">
+
+        <label for="pbEnd">Power Backup End Reading:</label>
+        <input type="number" id="pbEnd">
+
+        <button onclick="calculateCharges()">Calculate Charges</button>
+
+        <h2 id="charges">Total Charges: ₹0.00</h2>
+        <h2 id="dailyCharges">Daily Charges: ₹0.00</h2>
+
+        <div id="details" class="results"></div>
+    </div>
+
+    <script>
+        function calculateCharges() {
+            // Flat data
+            const flats = {
+                "LUX": {area: 2150, mainLoad: 14, pbLoad: 5, mainFixed: 62, pbFixed: 50, variable: 40, water: 175, society: 2.5, mainRate: 6.2, dgRate: 21},
+                "SDA": {area: 1750, mainLoad: 12, pbLoad: 5, mainFixed: 62, pbFixed: 50, variable: 40, water: 175, society: 2.5, mainRate: 6.2, dgRate: 21},
+                "DLX": {area: 1400, mainLoad: 10, pbLoad: 5, mainFixed: 62, pbFixed: 50, variable: 40, water: 175, society: 2.5, mainRate: 6.2, dgRate: 21},
+                "SFA": {area: 900, mainLoad: 8, pbLoad: 3, mainFixed: 62, pbFixed: 50, variable: 40, water: 150, society: 2.5, mainRate: 6.2, dgRate: 21}
+            };
+
+            // Get selected flat type
+            const flatType = document.getElementById("flatType").value;
+            const flat = flats[flatType];
+
+            // Get meter readings
+            const mainStart = parseFloat(document.getElementById("mainStart").value) || 0;
+            const mainEnd = parseFloat(document.getElementById("mainEnd").value) || 0;
+            const pbStart = parseFloat(document.getElementById("pbStart").value) || 0;
+            const pbEnd = parseFloat(document.getElementById("pbEnd").value) || 0;
+
+            // Calculate units consumed
+            const mainUnits = mainEnd - mainStart;
+            const pbUnits = pbEnd - pbStart;
+
+            // Get dates and calculate number of days
+            const startDate = new Date(document.getElementById("startDate").value);
+            const endDate = new Date(document.getElementById("endDate").value);
+            const timeDifference = endDate.getTime() - startDate.getTime();
+            const numberOfDays = Math.ceil(timeDifference / (1000 * 3600 * 24));
+
+            // Calculate daily charges
+            const dailyMainFixedCharges = flat.mainLoad * flat.mainFixed / 30;
+            const dailyPbFixedCharges = flat.pbLoad * flat.pbFixed / 30;
+            const dailyVariableCharges = flat.variable / 30;
+            const dailyWaterCharges = flat.water / 30;
+            const dailySocietyCharges = flat.area * flat.society / 30;
+            const dailyMainElectricCharges = mainUnits * flat.mainRate / numberOfDays;
+            const dailyDgCharges = pbUnits * flat.dgRate / numberOfDays;
+
+            const dailyTotalCharges = dailyMainFixedCharges + dailyPbFixedCharges + dailyVariableCharges + dailyWaterCharges + dailySocietyCharges + dailyMainElectricCharges + dailyDgCharges;
+
+            // Calculate total charges for the given period
+            const totalMainFixedCharges = dailyMainFixedCharges * numberOfDays;
+            const totalPbFixedCharges = dailyPbFixedCharges * numberOfDays;
+            const totalVariableCharges = dailyVariableCharges * numberOfDays;
+            const totalWaterCharges = dailyWaterCharges * numberOfDays;
+            const totalSocietyCharges = dailySocietyCharges * numberOfDays;
+            const totalMainElectricCharges = dailyMainElectricCharges * numberOfDays;
+            const totalDgCharges = dailyDgCharges * numberOfDays;
+
+            const totalCharges = totalMainFixedCharges + totalPbFixedCharges + totalVariableCharges + totalWaterCharges + totalSocietyCharges + totalMainElectricCharges + totalDgCharges;
+
+            // Display charges
+            document.getElementById("charges").innerText = `Total Charges: ₹${totalCharges.toFixed(2)} for ${numberOfDays} days`;
+            document.getElementById("dailyCharges").innerText = `Daily Charges: ₹${dailyTotalCharges.toFixed(2)}`;
+
+            // Display detailed charges
+            document.getElementById("details").innerHTML = `
+                <h3>Details for ${flatType}:</h3>
+                <p><strong>Flat Area:</strong> ${flat.area} sq. ft.</p>
+                <p><strong>Main Load:</strong> ${flat.mainLoad} KW</p>
+                <p><strong>Power Backup Load:</strong> ${flat.pbLoad} KW</p>
+                <h4>Daily Charges:</h4>
+                <table>
+                    <tr><th>Description</th><th>Charges (₹)</th></tr>
+                    <tr><td>Main Domestic Fixed Charges</td><td>${dailyMainFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Power Backup Fixed Charges</td><td>${dailyPbFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Electrical Vending Charges</td><td>${dailyVariableCharges.toFixed(2)}</td></tr>
+                    <tr><td>Water Charges</td><td>${dailyWaterCharges.toFixed(2)}</td></tr>
+                    <tr><td>Fixed Society Charges</td><td>${dailySocietyCharges.toFixed(2)}</td></tr>
+                    <tr><td>Main Domestic Electric Charges</td><td>${dailyMainElectricCharges.toFixed(2)}</td></tr>
+                    <tr><td>DG Per Unit Rate Charges</td><td>${dailyDgCharges.toFixed(2)}</td></tr>
+                    <tr><th>Total Daily Charges</th><th>${dailyTotalCharges.toFixed(2)}</th></tr>
+                </table>
+                <h4>Total Charges for ${numberOfDays} days:</h4>
+                <table>
+                    <tr><th>Description</th><th>Charges (₹)</th></tr>
+                    <tr><td>Main Domestic Fixed Charges</td><td>${totalMainFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Power Backup Fixed Charges</td><td>${totalPbFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Electrical Vending Charges</td><td>${totalVariableCharges.toFixed(2)}</td></tr>
+                    <tr><td>Water Charges</td><td>${totalWaterCharges.toFixed(2)}</td></tr>
+                    <tr><td>Fixed Society Charges</td><td>${totalSocietyCharges.toFixed(2)}</td></tr>
+                    <tr><td>Main Domestic Electric Charges</td><td>${totalMainElectricCharges.toFixed(2)}</td></tr>
+                    <tr><td>DG Per Unit Rate Charges</td><td>${totalDgCharges.toFixed(2)}</td></tr>
+                    <tr><th>Total Charges</th><th>${totalCharges.toFixed(2)}</th></tr>
+                </table>
+            `;
+        }
+    </script>
 </body>
 </html>
