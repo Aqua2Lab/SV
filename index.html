@@ -152,10 +152,8 @@
             const dailyVariableCharges = flat.variable / 30;
             const dailyWaterCharges = flat.water / 30;
             const dailySocietyCharges = flat.area * flat.society / 30;
-            const dailyMainElectricCharges = mainUnits * flat.mainRate / numberOfDays;
-            const dailyDgCharges = pbUnits * flat.dgRate / numberOfDays;
 
-            const dailyTotalCharges = dailyMainFixedCharges + dailyPbFixedCharges + dailyVariableCharges + dailyWaterCharges + dailySocietyCharges + dailyMainElectricCharges + dailyDgCharges;
+            const dailyFixedCharges = dailyMainFixedCharges + dailyPbFixedCharges + dailyVariableCharges + dailyWaterCharges + dailySocietyCharges;
 
             // Calculate total charges for the given period
             const totalMainFixedCharges = dailyMainFixedCharges * numberOfDays;
@@ -163,14 +161,18 @@
             const totalVariableCharges = dailyVariableCharges * numberOfDays;
             const totalWaterCharges = dailyWaterCharges * numberOfDays;
             const totalSocietyCharges = dailySocietyCharges * numberOfDays;
-            const totalMainElectricCharges = dailyMainElectricCharges * numberOfDays;
-            const totalDgCharges = dailyDgCharges * numberOfDays;
 
-            const totalCharges = totalMainFixedCharges + totalPbFixedCharges + totalVariableCharges + totalWaterCharges + totalSocietyCharges + totalMainElectricCharges + totalDgCharges;
+            const totalFixedCharges = totalMainFixedCharges + totalPbFixedCharges + totalVariableCharges + totalWaterCharges + totalSocietyCharges;
+
+            // Calculate electricity charges
+            const mainElectricCharges = mainUnits * flat.mainRate;
+            const dgCharges = pbUnits * flat.dgRate;
+
+            const totalElectricityCharges = mainElectricCharges + dgCharges;
 
             // Display charges
-            document.getElementById("charges").innerText = `Total Charges: ₹${totalCharges.toFixed(2)} for ${numberOfDays} days`;
-            document.getElementById("dailyCharges").innerText = `Daily Charges: ₹${dailyTotalCharges.toFixed(2)}`;
+            document.getElementById("charges").innerText = `Total Charges: ₹${(totalFixedCharges + totalElectricityCharges).toFixed(2)} for ${numberOfDays} days`;
+            document.getElementById("dailyCharges").innerText = `Daily Fixed Charges: ₹${dailyFixedCharges.toFixed(2)}`;
 
             // Display detailed charges
             document.getElementById("details").innerHTML = `
@@ -178,29 +180,22 @@
                 <p><strong>Flat Area:</strong> ${flat.area} sq. ft.</p>
                 <p><strong>Main Load:</strong> ${flat.mainLoad} KW</p>
                 <p><strong>Power Backup Load:</strong> ${flat.pbLoad} KW</p>
-                <h4>Daily Charges:</h4>
+                <h4>Fixed Charges:</h4>
                 <table>
-                    <tr><th>Description</th><th>Charges (₹)</th></tr>
-                    <tr><td>Main Domestic Fixed Charges</td><td>${dailyMainFixedCharges.toFixed(2)}</td></tr>
-                    <tr><td>Power Backup Fixed Charges</td><td>${dailyPbFixedCharges.toFixed(2)}</td></tr>
-                    <tr><td>Electrical Vending Charges</td><td>${dailyVariableCharges.toFixed(2)}</td></tr>
-                    <tr><td>Water Charges</td><td>${dailyWaterCharges.toFixed(2)}</td></tr>
-                    <tr><td>Fixed Society Charges</td><td>${dailySocietyCharges.toFixed(2)}</td></tr>
-                    <tr><td>Main Domestic Electric Charges</td><td>${dailyMainElectricCharges.toFixed(2)}</td></tr>
-                    <tr><td>DG Per Unit Rate Charges</td><td>${dailyDgCharges.toFixed(2)}</td></tr>
-                    <tr><th>Total Daily Charges</th><th>${dailyTotalCharges.toFixed(2)}</th></tr>
+                    <tr><th>Description</th><th>Daily Charges (₹)</th><th>Total Charges (₹)</th></tr>
+                    <tr><td>Main Domestic Fixed Charges</td><td>${dailyMainFixedCharges.toFixed(2)}</td><td>${totalMainFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Power Backup Fixed Charges</td><td>${dailyPbFixedCharges.toFixed(2)}</td><td>${totalPbFixedCharges.toFixed(2)}</td></tr>
+                    <tr><td>Electrical Vending Charges</td><td>${dailyVariableCharges.toFixed(2)}</td><td>${totalVariableCharges.toFixed(2)}</td></tr>
+                    <tr><td>Water Charges</td><td>${dailyWaterCharges.toFixed(2)}</td><td>${totalWaterCharges.toFixed(2)}</td></tr>
+                    <tr><td>Fixed Society Charges</td><td>${dailySocietyCharges.toFixed(2)}</td><td>${totalSocietyCharges.toFixed(2)}</td></tr>
+                    <tr><th>Total Fixed Charges</th><th>${dailyFixedCharges.toFixed(2)}</th><th>${totalFixedCharges.toFixed(2)}</th></tr>
                 </table>
-                <h4>Total Charges for ${numberOfDays} days:</h4>
+                <h4>Electricity Charges:</h4>
                 <table>
                     <tr><th>Description</th><th>Charges (₹)</th></tr>
-                    <tr><td>Main Domestic Fixed Charges</td><td>${totalMainFixedCharges.toFixed(2)}</td></tr>
-                    <tr><td>Power Backup Fixed Charges</td><td>${totalPbFixedCharges.toFixed(2)}</td></tr>
-                    <tr><td>Electrical Vending Charges</td><td>${totalVariableCharges.toFixed(2)}</td></tr>
-                    <tr><td>Water Charges</td><td>${totalWaterCharges.toFixed(2)}</td></tr>
-                    <tr><td>Fixed Society Charges</td><td>${totalSocietyCharges.toFixed(2)}</td></tr>
-                    <tr><td>Main Domestic Electric Charges</td><td>${totalMainElectricCharges.toFixed(2)}</td></tr>
-                    <tr><td>DG Per Unit Rate Charges</td><td>${totalDgCharges.toFixed(2)}</td></tr>
-                    <tr><th>Total Charges</th><th>${totalCharges.toFixed(2)}</th></tr>
+                    <tr><td>Main Domestic Electric Charges</td><td>${mainElectricCharges.toFixed(2)}</td></tr>
+                    <tr><td>DG Per Unit Rate Charges</td><td>${dgCharges.toFixed(2)}</td></tr>
+                    <tr><th>Total Electricity Charges</th><th>${totalElectricityCharges.toFixed(2)}</th></tr>
                 </table>
             `;
         }
