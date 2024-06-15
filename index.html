@@ -1,53 +1,57 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Simple Webpage</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f0f0;
+    <title>Secure Meters Bill Generator</title>
+    <script>
+        function calculateBill() {
+            // Get input values
+            var flatType = document.getElementById("flatType").value;
+            var flatArea = parseFloat(document.getElementById("flatArea").value);
+            var mainLoad = parseFloat(document.getElementById("mainLoad").value);
+            var pbLoad = parseFloat(document.getElementById("pbLoad").value);
+            var vendingCharges = parseFloat(document.getElementById("vendingCharges").value);
+            var societyChargesPerSqFt = parseFloat(document.getElementById("societyChargesPerSqFt").value);
+
+            // Fixed charges calculation
+            var mainFixedChargeRate = 6.2; // Rs per KW
+            var pbFixedChargeRate = 50; // Rs per KW
+            var totalMainFixedCharge = mainLoad * mainFixedChargeRate;
+            var totalPbFixedCharge = pbLoad * pbFixedChargeRate;
+            var totalFixedCharges = totalMainFixedCharge + totalPbFixedCharge;
+
+            // Society charges calculation
+            var totalSocietyCharges = flatArea * societyChargesPerSqFt;
+
+            // Total fixed charges including vending
+            var totalFixedChargesIncludingVending = totalFixedCharges + vendingCharges;
+
+            // Output the results
+            document.getElementById("output").innerHTML =
+                "Total Fixed Charges: Rs. " + totalFixedCharges.toFixed(2) + "<br>" +
+                "Total Society Charges: Rs. " + totalSocietyCharges.toFixed(2) + "<br>" +
+                "Total Fixed Charges Including Vending: Rs. " + totalFixedChargesIncludingVending.toFixed(2) + "<br>" +
+                "Total Monthly Bill: Rs. " + (totalFixedChargesIncludingVending + totalSocietyCharges).toFixed(2);
         }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
-        main {
-            padding: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px 0;
-            position: fixed;
-            width: 100%;
-            bottom: 0;
-        }
-    </style>
+    </script>
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Webpage</h1>
-    </header>
-    <main>
-        <h2>About Me</h2>
-        <p>This is a simple webpage created as an example. You can add more content here about yourself or any topic of your choice.</p>
-        <h2>My Interests</h2>
-        <ul>
-            <li>Coding</li>
-            <li>Reading</li>
-            <li>Traveling</li>
-            <li>Photography</li>
-        </ul>
-    </main>
-    <footer>
-        <p>&copy; 2024 My Simple Webpage</p>
-    </footer>
+    <h1>Secure Meters Bill Generator</h1>
+    <form>
+        <label for="flatType">Flat Type:</label>
+        <input type="text" id="flatType" name="flatType"><br><br>
+        <label for="flatArea">Flat Area (sq ft):</label>
+        <input type="number" id="flatArea" name="flatArea"><br><br>
+        <label for="mainLoad">Main Load (KW):</label>
+        <input type="number" id="mainLoad" name="mainLoad"><br><br>
+        <label for="pbLoad">Power Backup Load (KW):</label>
+        <input type="number" id="pbLoad" name="pbLoad"><br><br>
+        <label for="vendingCharges">Vending Charges (Rs):</label>
+        <input type="number" id="vendingCharges" name="vendingCharges"><br><br>
+        <label for="societyChargesPerSqFt">Society Charges per Sq Ft (Rs):</label>
+        <input type="number" id="societyChargesPerSqFt" name="societyChargesPerSqFt"><br><br>
+        <input type="button" value="Calculate Bill" onclick="calculateBill()">
+    </form>
+    <h2>Output</h2>
+    <div id="output"></div>
 </body>
 </html>
